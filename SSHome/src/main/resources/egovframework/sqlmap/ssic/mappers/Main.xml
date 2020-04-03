@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.ssic.ssh.service.impl.MainMapper">
+
+	<select id="selectBsnsRstYear" resultType="egovMap">
+			/* MainMapper.selectBsnsRstYear */
+			SELECT DISTINCT (BR.BSNS_YEAR) AS BSNS_YEAR
+			  FROM BSNS_RST BR
+			ORDER BY BR.BSNS_YEAR DESC
+	</select>
+
+	<select id="selectBsnsRstList" parameterType="egovMap" resultType="egovMap">
+			/* MainMapper.selectBsnsRstList */
+			SELECT BR.BSNS_ID,
+			       BR.BSNS_YEAR,
+			       BR.ORG_NAME,
+			       BR.BSNS_NAME,
+			       CONCAT(LEFT(BR.BSNS_TERM_FR, 4), '.', RIGHT(BR.BSNS_TERM_FR, 2)) AS BSNS_TERM_FR,
+			       CONCAT(LEFT(BR.BSNS_TERM_TO, 4), '.', RIGHT(BR.BSNS_TERM_TO, 2)) AS BSNS_TERM_TO,
+			       CONCAT(
+			          CONCAT(LEFT(BR.BSNS_TERM_FR, 4), '.', RIGHT(BR.BSNS_TERM_FR, 2)),
+			          '~',
+			          CONCAT(LEFT(BR.BSNS_TERM_TO, 4), '.', RIGHT(BR.BSNS_TERM_TO, 2)))
+			          AS BSNS_TERM,
+			       BR.BSNS_PART,
+			       BR.ETC
+			  FROM BSNS_RST BR
+			 WHERE 1 = 1
+		    	<choose>
+					<when test='bYear != null and bYear != ""'>
+			 			AND BR.BSNS_YEAR = #{bYear}
+					</when>
+					<otherwise>
+						AND BR.BSNS_YEAR = (SELECT MAX(BR.BSNS_YEAR) FROM BSNS_RST BR)
+					</otherwise>
+				</choose>
+			ORDER BY BR.BSNS_ID DESC
+	</select>
+
+	<select id="selectBsnsRstDetail" parameterType="egovMap" resultType="egovMap">
+			/* MainMapper.selectBsnsRstDetail */
+			SELECT BR.BSNS_ID,
+			       BR.BSNS_YEAR,
+			       BR.ORG_NAME,
+			       BR.BSNS_NAME,
+			       CONCAT(LEFT(BR.BSNS_TERM_FR, 4), '.', RIGHT(BR.BSNS_TERM_FR, 2))
+			          AS BSNS_TERM_FR,
+			       CONCAT(LEFT(BR.BSNS_TERM_TO, 4), '.', RIGHT(BR.BSNS_TERM_TO, 2))
+			          AS BSNS_TERM_TO,
+			       CONCAT(
+			          CONCAT(LEFT(BR.BSNS_TERM_FR, 4), '.', RIGHT(BR.BSNS_TERM_FR, 2)),
+			          '~',
+			          CONCAT(LEFT(BR.BSNS_TERM_TO, 4), '.', RIGHT(BR.BSNS_TERM_TO, 2)))
+			          AS BSNS_TERM,
+			       BR.BSNS_PART,
+			       BR.ETC
+			  FROM BSNS_RST BR
+			 WHERE 1 = 1
+			 	AND BR.BSNS_ID = #{bsnsId}
+	</select>
+
+	<select id="selectBoardList" parameterType="egovMap" resultType="egovMap">
+			/* MainMapper.selectBoardList */
+			SELECT BD.BOARD_ID,
+			       BD.BOARD_NO,
+			       BD.BOARD_TITLE,
+			       BD.BOARD_CONTENT,
+			       BD.ATTACH_ID,
+			       BD.VIEW_CNT,
+			       BD.BOARD_PW,
+			       BD.REG_USER,
+			       DATE_FORMAT(BD.REG_DATE, '%Y-%m-%d') AS REG_DATE,
+			       BD.MODY_USER,
+			       DATE_FORMAT(BD.MODY_DATE, '%Y-%m-%d') AS MODY_DATE,
+			       IFNULL(BD.MODY_USER, BD.REG_USER) AS BOARD_USER,
+			       DATE_FORMAT(IFNULL(BD.MODY_DATE, BD.REG_DATE), '%Y-%m-%d') AS BOARD_DATE
+			  FROM BOARD BD
+			 WHERE 1 = 1
+				AND BD.BOARD_ID = #{boardId}
+				<if test='boardKeyword neq null and boardKeyword neq ""'>
+			    	<choose>
+						<when test='boardCondition eq 0'>
+							AND	BD.BOARD_TITLE LIKE CONCAT('%', #{boardKeyword}, '%')
+						</when>
+						<when test='boardCondition eq 1'>
+							AND	BD.REG_USER LIKE CONCAT('%', #{boardKeyword}, '%')
+						</when>
+					</choose>
+				</if>
+			ORDER BY BD.BOARD_NO DESC
+			 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectBoardListTotCnt" parameterType="egovMap" resultType="int">
+			/* MainMapper.selectBoardListTotCnt */
+			SELECT COUNT(*) totcnt
+			  FROM BOARD BD
+			 WHERE 1 = 1
+				AND BD.BOARD_ID = #{boardId}
+				<if test='boardKeyword neq null and boardKeyword neq ""'>
+			    	<choose>
+						<when test='boardCondition eq 0'>
+							AND	BD.BOARD_TITLE LIKE CONCAT('%', #{boardKeyword}, '%')
+						</when>
+						<when test='boardCondition eq 1'>
+							AND	BD.REG_USER LIKE CONCAT('%', #{boardKeyword}, '%')
+						</when>
+					</choose>
+				</if>
+	</select>
+
+	<select id="selectBoardDetail" parameterType="egovMap" resultType="egovMap">
+			/* MainMapper.selectBoardDetail */
+			SELECT BD.BOARD_ID,
+			       BD.BOARD_NO,
+			       BD.BOARD_TITLE,
+			       BD.BOARD_CONTENT,
+			       BD.ATTACH_ID,
+			       BD.VIEW_CNT,
+			       BD.BOARD_PW,
+			       BD.REG_USER,
+			       DATE_FORMAT(BD.REG_DATE, '%Y-%m-%d') AS REG_DATE,
+			       BD.MODY_USER,
+			       DATE_FORMAT(BD.MODY_DATE, '%Y-%m-%d') AS MODY_DATE,
+			       IFNULL(BD.MODY_USER, BD.REG_USER) AS BOARD_USER,
+			       DATE_FORMAT(IFNULL(BD.MODY_DATE, BD.REG_DATE), '%Y-%m-%d') AS BOARD_DATE
+			  FROM BOARD BD
+			 WHERE 1 = 1
+			 	AND BD.BOARD_ID = #{boardId}
+			 	AND BD.BOARD_NO = #{boardNo}
+	</select>
+
+	<insert id="insertBoardDetail" parameterType="egovMap">
+			/* MainMapper.insertBoardDetail */
+			INSERT INTO BOARD(
+			                  BOARD_ID,
+			                  BOARD_NO,
+			                  BOARD_TITLE,
+			                  BOARD_CONTENT,
+			                  ATTACH_ID,
+			                  VIEW_CNT,
+			                  BOARD_PW,
+			                  REG_USER,
+			                  REG_DATE
+			) VALUES (
+			        #{boardId},
+			        (SELECT IFNULL(MAX(BD.BOARD_NO), 0) + 1 FROM BOARD BD WHERE 1 = 1 AND BD.BOARD_ID = #{boardId}),
+			        #{boardTitle},
+			        #{boardContent},
+			    	<choose>
+						<when test='attach neq null and attach neq ""'>
+							#{attach},
+						</when>
+						<otherwise>
+							NULL,
+						</otherwise>
+			    	</choose>
+			        0,
+			        #{boardPw},
+			        #{boardUser},
+			        SYSDATE()
+			)
+	</insert>
+
+	<update id="updateBoardDetail" parameterType="egovMap">
+			/* MainMapper.updateBoardDetail */
+			UPDATE BOARD
+			   SET BOARD_TITLE = #{boardTitle},
+			       BOARD_CONTENT = #{boardContent},
+			       MODY_USER = #{boardUser},
+			       MODY_DATE = SYSDATE()
+			 WHERE 1 = 1
+				AND BOARD_ID = #{boardId}
+				AND BOARD_NO = #{boardNo}
+	</update>
+
+</mapper>

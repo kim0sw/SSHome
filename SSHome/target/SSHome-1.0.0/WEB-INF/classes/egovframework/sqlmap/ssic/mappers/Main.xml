@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.ssic.ssh.service.impl.MainMapper">
+
+	<select id="selectBsnsRstYear" resultType="egovMap">
+			/* MainMapper.selectBsnsRstYear */
+			SELECT DISTINCT (BR.BSNS_YEAR) AS BSNS_YEAR
+			  FROM BSNS_RST BR
+			ORDER BY BR.BSNS_YEAR DESC
+	</select>
+
+	<select id="selectBsnsRstList" parameterType="egovMap" resultType="egovMap">
+			/* MainMapper.selectBsnsRstList */
+			SELECT BR.BSNS_ID,
+			       BR.BSNS_YEAR,
+			       BR.ORG_NAME,
+			       BR.BSNS_NAME,
+			       CONCAT(LEFT(BR.BSNS_TERM_FR, 4), '.', RIGHT(BR.BSNS_TERM_FR, 2)) AS BSNS_TERM_FR,
+			       CONCAT(LEFT(BR.BSNS_TERM_TO, 4), '.', RIGHT(BR.BSNS_TERM_TO, 2)) AS BSNS_TERM_TO,
+			       CONCAT(
+			          CONCAT(LEFT(BR.BSNS_TERM_FR, 4), '.', RIGHT(BR.BSNS_TERM_FR, 2)),
+			          '~',
+			          CONCAT(LEFT(BR.BSNS_TERM_TO, 4), '.', RIGHT(BR.BSNS_TERM_TO, 2)))
+			          AS BSNS_TERM,
+			       BR.BSNS_PART,
+			       BR.ETC
+			  FROM BSNS_RST BR
+			 WHERE 1 = 1 AND BR.BSNS_YEAR = #{year}
+			ORDER BY BR.BSNS_ID DESC
+	</select>
+
+</mapper>
